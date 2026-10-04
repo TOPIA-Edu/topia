@@ -1,0 +1,159 @@
+/* TOPIA Weekday Class — tokens */
+:root {
+  --wc-red: #E0261B;
+  --wc-blue: #1D4FE0;
+  --wc-yellow: #FFC61A;
+  --wc-neon-lime: #C5F800;
+  --wc-neon-pink: #FF5FA8;
+  --topia-burgundy: #7E1100;
+  --topia-burgundy-tint: #F6E1DC;
+  --wc-ink: #0C185B;
+  --wc-muted: #4B5070;
+  --wc-paper: #FEF4EB;
+  --wc-white: #FFFFFF;
+  --wc-sky: #DCE6FF;
+  --wc-butter: #FFF0BF;
+  --wc-line: #E8DFD0;
+  --shadow-sticker: 4px 4px 0 #0C185B;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 40px;
+  --space-6: 64px;
+  --radius-s: 12px;
+  --radius-m: 24px;
+  --radius-l: 40px;
+  --radius-pill: 999px;
+  --font-sans: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", system-ui, sans-serif;
+  --font-latin: Fraunces, "Noto Serif KR", Georgia, serif;
+}
+
+/* components */
+/* ── Base ─────────────────────────────────────────── */
+.wc { font-family: var(--font-sans); color: var(--wc-ink); -webkit-font-smoothing: antialiased; word-break: keep-all; overflow-wrap: break-word; }
+.wc-latin { font-family: var(--font-latin); font-variation-settings: "SOFT" 100, "WONK" 0; }
+
+/* ── Button: pill ─────────────────────────────────── */
+.wc-btn { display: inline-flex; align-items: center; gap: var(--space-2); font-family: var(--font-sans); font-weight: 700; font-size: 17px; line-height: 1; padding: 16px 28px; border-radius: var(--radius-pill); border: 2px solid var(--wc-ink); cursor: pointer; transition: transform 120ms ease, box-shadow 120ms ease; }
+.wc-btn--red { background: var(--wc-red); color: var(--wc-white); }
+.wc-btn--blue { background: var(--wc-blue); color: var(--wc-white); }
+.wc-btn--neon { background: var(--wc-neon-lime); color: var(--wc-ink); }
+.wc-btn--ghost { background: var(--wc-white); color: var(--wc-ink); }
+.wc-btn--sticker { box-shadow: var(--shadow-sticker); }
+.wc-btn--sticker:active { transform: translate(4px, 4px); box-shadow: none; }
+.wc-btn:focus-visible { outline: 3px solid var(--wc-blue); outline-offset: 3px; }
+
+/* ── Highlight: highlighter-pen stroke ────────────── */
+.wc-hl { background: linear-gradient(transparent 52%, var(--wc-neon-lime) 52%, var(--wc-neon-lime) 92%, transparent 92%); padding: 0 0.12em; border-radius: 0.1em; color: var(--wc-ink); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.wc-hl--pink { background: linear-gradient(transparent 52%, var(--wc-neon-pink) 52%, var(--wc-neon-pink) 92%, transparent 92%); }
+.wc-hl--full { background: var(--wc-neon-lime); border-radius: var(--radius-s); padding: 0.05em 0.25em; }
+
+/* ── Sticker ──────────────────────────────────────── */
+.wc-sticker { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-weight: 800; color: var(--wc-ink); border: 2px solid var(--wc-ink); box-shadow: var(--shadow-sticker); }
+.wc-sticker--circle { width: 132px; height: 132px; border-radius: 50%; font-size: 17px; line-height: 1.2; transform: rotate(-8deg); }
+.wc-sticker--circle strong { display: block; font-size: 40px; line-height: 1; letter-spacing: -0.03em; }
+.wc-sticker--pill { border-radius: var(--radius-pill); padding: 10px 20px; font-size: 16px; }
+.wc-sticker--lime { background: var(--wc-neon-lime); }
+.wc-sticker--pink { background: var(--wc-neon-pink); }
+.wc-sticker--yellow { background: var(--wc-yellow); }
+
+/* ── Schedule: weekly blocks ──────────────────────── */
+.wc-sched { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-2); align-items: start; }
+.wc-sched__day { border-radius: var(--radius-m); padding: 14px 8px 16px; text-align: center; color: var(--wc-white); }
+.wc-sched__day--short { background: var(--wc-blue); min-height: 120px; }
+.wc-sched__day--long { background: var(--wc-red); min-height: 196px; }
+.wc-sched__name { font-weight: 800; font-size: 22px; line-height: 1.1; }
+.wc-sched__time { margin-top: 10px; font-weight: 600; font-size: 14px; line-height: 1.35; }
+.wc-sched__count { display: inline-block; margin-top: 10px; padding: 4px 10px; border-radius: var(--radius-pill); background: var(--wc-white); color: var(--wc-ink); font-weight: 700; font-size: 13px; }
+.wc-sched__legend { display: flex; gap: var(--space-4); margin-top: var(--space-3); font-size: 14px; font-weight: 600; color: var(--wc-ink); flex-wrap: wrap; }
+.wc-sched__legend i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+
+/* ── InfoPanel: ad footer info + legal ────────────── */
+.wc-info { background: var(--wc-white); border: 1.5px solid var(--wc-line); border-radius: var(--radius-m); padding: var(--space-4); }
+.wc-info__rows { display: grid; grid-template-columns: auto 1fr; gap: 10px 20px; font-size: 16px; line-height: 1.45; }
+.wc-info__k { font-weight: 800; color: var(--topia-burgundy); white-space: nowrap; }
+.wc-info__v { font-weight: 500; color: var(--wc-ink); }
+.wc-info__legal { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1.5px dashed var(--wc-line); font-size: 13px; line-height: 1.5; color: var(--wc-muted); }
+.wc-tbd { display: inline-block; padding: 1px 8px; border-radius: var(--radius-pill); background: var(--wc-butter); color: var(--wc-ink); font-weight: 600; font-size: 0.9em; }
+
+/* ── FeatureCard ──────────────────────────────────── */
+.wc-feature { border-radius: var(--radius-m); padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2); min-height: 200px; }
+.wc-feature__num { font-weight: 800; font-size: 64px; line-height: 1; letter-spacing: -0.03em; }
+.wc-feature__num small { font-size: 0.4em; letter-spacing: 0; margin-left: 2px; }
+.wc-feature__title { font-weight: 700; font-size: 20px; line-height: 1.3; }
+.wc-feature__body { font-weight: 500; font-size: 15px; line-height: 1.5; }
+.wc-feature--red { background: var(--wc-red); color: var(--wc-white); }
+.wc-feature--blue { background: var(--wc-blue); color: var(--wc-white); }
+.wc-feature--yellow { background: var(--wc-yellow); color: var(--wc-ink); }
+.wc-feature--paper { background: var(--wc-white); color: var(--wc-ink); border: 1.5px solid var(--wc-line); }
+.wc-feature--paper .wc-feature__num { color: var(--wc-red); }
+
+/* ── Eyebrow + title (inherited TOPIA device) ─────── */
+.wc-eyebrow { font-family: var(--font-latin); font-variation-settings: "SOFT" 100, "WONK" 0; font-weight: 600; letter-spacing: 0.01em; color: var(--wc-blue); }
+
+/* ── Lockup: TOPIA logotype + Weekday Class ───────── */
+.wc-lockup { display: inline-flex; align-items: baseline; gap: 0.32em; font-size: 48px; line-height: 1; }
+.wc-lockup img { height: 0.74em; width: auto; display: block; align-self: center; transform: translateY(-0.02em); }
+.wc-lockup__name { font-family: var(--font-latin); font-variation-settings: "SOFT" 100, "WONK" 0; font-weight: 600; letter-spacing: -0.005em; color: var(--wc-ink); white-space: nowrap; }
+.wc-lockup--stack { flex-direction: column; align-items: flex-start; gap: 0.14em; }
+.wc-lockup--stack img { align-self: flex-start; }
+.wc-lockup--on-dark .wc-lockup__name { color: var(--wc-white); }
+
+/* ── Price: tuition + sibling discount ────────────── */
+.wc-price { background: var(--topia-burgundy-tint); border-radius: var(--radius-m); padding: var(--space-4); color: var(--wc-ink); }
+.wc-price__label { font-weight: 700; font-size: 15px; color: var(--topia-burgundy); }
+.wc-price__amount { font-weight: 800; font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; color: var(--topia-burgundy); margin-top: 4px; }
+.wc-price__amount small { font-size: 0.45em; font-weight: 700; letter-spacing: 0; margin-left: 2px; }
+.wc-price__note { font-size: 14px; font-weight: 500; color: var(--wc-muted); margin-top: 6px; line-height: 1.5; }
+.wc-price__sib { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1.5px dashed rgba(126,17,0,0.25); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.wc-price__sib b { font-size: 28px; font-weight: 800; color: var(--topia-burgundy); letter-spacing: -0.02em; }
+.wc-price__sib s { color: var(--wc-muted); font-size: 15px; }
+
+/* ── Legal band ───────────────────────────────────── */
+.wc-legal-band { background: var(--topia-burgundy); color: var(--wc-white); font-size: 13px; line-height: 1.6; padding: 16px 20px; }
+
+/* ── Page base ────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--wc-paper); }
+img { max-width: 100%; }
+a { color: var(--wc-blue); }
+a:hover { color: var(--wc-ink); }
+section[id] { scroll-margin-top: 12px; }
+
+/* ── Form ─────────────────────────────────────────── */
+.lp-form { display: flex; flex-direction: column; gap: 16px; }
+.lp-form[hidden], .lp-error[hidden] { display: none; }
+.lp-field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 700; color: var(--wc-ink); }
+.lp-req { color: var(--wc-red); }
+.lp-field input, .lp-field select, .lp-field textarea {
+  width: 100%; min-height: 52px; border: 1.5px solid var(--wc-line); border-radius: var(--radius-s);
+  padding: 0 16px; font-size: 16px; font-family: inherit; font-weight: 500; color: var(--wc-ink); background: var(--wc-paper);
+}
+.lp-field textarea { padding: 14px 16px; resize: vertical; min-height: 96px; }
+.lp-field input::placeholder, .lp-field textarea::placeholder { color: #8A8DA3; }
+.lp-field input:focus-visible, .lp-field select:focus-visible, .lp-field textarea:focus-visible,
+.lp-choice input:focus-visible + span, .lp-consent input:focus-visible { outline: 3px solid var(--wc-blue); outline-offset: 2px; }
+.lp-field [aria-invalid="true"] { border-color: var(--wc-red); }
+.lp-fieldset { border: 0; margin: 0; padding: 0; }
+.lp-fieldset legend { font-size: 14px; font-weight: 700; margin-bottom: 8px; padding: 0; color: var(--wc-ink); }
+.lp-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.lp-choice { position: relative; cursor: pointer; }
+.lp-choice input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.lp-choice span { display: flex; align-items: center; justify-content: center; text-align: center; min-height: 52px; padding: 6px 8px; border-radius: var(--radius-s); border: 1.5px solid var(--wc-line); background: var(--wc-paper); color: var(--wc-ink); font-size: 15px; font-weight: 600; }
+.lp-choice input:checked + span { background: var(--wc-ink); border-color: var(--wc-ink); color: var(--wc-white); font-weight: 700; }
+.lp-consent { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.5; font-weight: 500; color: var(--wc-ink); cursor: pointer; }
+.lp-consent input { width: 22px; height: 22px; margin: 0; flex: none; accent-color: #0C185B; }
+.lp-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.lp-error { font-size: 14px; font-weight: 700; color: #B4170E; line-height: 1.5; }
+.lp-submit { justify-content: center; min-height: 56px; font-size: 18px; margin-top: 4px; width: 100%; }
+.lp-submit[disabled] { opacity: 0.6; cursor: progress; box-shadow: none; transform: none; }
+.lp-done { background: var(--wc-paper); border-radius: var(--radius-m); padding: 32px 24px; text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.lp-done[hidden] { display: none; }
+.lp-done__badge { width: 96px; height: 96px; font-size: 13px; transform: rotate(-6deg); }
+.lp-done__badge strong { font-size: 26px; }
+.lp-done__title { font-size: 20px; font-weight: 800; margin-top: 8px; color: var(--wc-ink); }
+.lp-done__body { font-size: 15px; line-height: 1.6; color: var(--wc-muted); }
+
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
