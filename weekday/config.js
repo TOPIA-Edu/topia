@@ -4,6 +4,6 @@
  * - pixelId  : Meta(인스타그램) 픽셀 ID. 비워 두면 픽셀을 불러오지 않습니다.
  */
 window.WC_CONFIG = {
-  endpoint: "https://script.google.com/macros/s/AKfycbwhQXydZC6SGosJ--P6oIpJzQb6Wy7yCAYJmg9ruP2XCsOD7u17s35G-UOZ3Di4J3XV/exec",
+  endpoint: "https://script.google.com/macros/s/AKfycbye7Y-7mOhGRVt-i55pn2ojAg-o-ksoER8b6nY9IDQi9MD_g18Wg52uuU0y3bz-_WNP/exec",
   pixelId: "405764449078494"
 };
