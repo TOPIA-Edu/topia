@@ -157,3 +157,9 @@ section[id] { scroll-margin-top: 12px; }
 .lp-done__body { font-size: 15px; line-height: 1.6; color: var(--wc-muted); }
 
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+.lp-ref { background: var(--wc-butter); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.lp-ref legend { float: left; width: 100%; margin-bottom: 0; }
+.lp-ref__note { margin: 0; font-size: 13px; line-height: 1.6; font-weight: 500; color: var(--wc-muted); clear: both; }
+.lp-ref__note b { color: var(--topia-burgundy); font-weight: 800; }
+.lp-ref input { background: #fff; }

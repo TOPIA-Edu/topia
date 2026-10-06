@@ -178,7 +178,7 @@
         <div class="wc-price__note">월~금 매일 · 주 7교시 · 한 반 8명</div>
         <div class="wc-price__sib"><span style="font-weight: 700; font-size: 15px;">중계캠퍼스 형제 재원 시 20% 할인</span><s>320,000원</s><b>월 256,000원</b></div>
       </div>
-      <div style="font-size: 13px; line-height: 1.7; color: var(--wc-muted);">※ 형제할인은 TOPIA어학원 중계캠퍼스에 재원 중인 형제가 있을 때 적용됩니다.<br>※ 차량 이용 시 차량비 월 40,000원 별도 (이용 희망자가 적을 경우 차량 운행이 취소될 수 있습니다)<br>※ 교재비 별도</div>
+      <div style="font-size: 13px; line-height: 1.7; color: var(--wc-muted);">※ 형제할인은 TOPIA어학원 중계캠퍼스에 재원 중인 형제가 있을 때 적용됩니다.<br>※ 중계캠퍼스 재원생 추천으로 등록하면 신입생과 추천한 재원생 모두 12월 수강료를 10% 추가 할인합니다. (12월 한정, 형제할인과 함께 적용 시 256,000원 → 230,400원)<br>※ 차량 이용 시 차량비 월 40,000원 별도 (이용 희망자가 적을 경우 차량 운행이 취소될 수 있습니다)<br>※ 교재비 별도</div>
     </div>
   </section>
 
@@ -231,13 +231,23 @@
             <option>그 외 학교</option>
           </select>
         </label>
+        <fieldset class="lp-fieldset lp-ref">
+          <legend>재원생 추천 (선택)</legend>
+          <p class="lp-ref__note">TOPIA어학원 중계캠퍼스 재원생의 추천을 받으셨다면 적어 주세요. 등록 시 신입생과 추천한 재원생 모두 <b>12월 수강료 10% 추가 할인</b>을 받습니다.</p>
+          <label class="lp-field">추천한 재원생 이름
+            <input type="text" name="refName" autocomplete="off" placeholder="예) 김토피" maxlength="30">
+          </label>
+          <label class="lp-field">재원생 학부모 연락처
+            <input type="tel" name="refPhone" autocomplete="off" inputmode="numeric" placeholder="010-0000-0000" maxlength="13">
+          </label>
+        </fieldset>
         <label class="lp-field">궁금한 점 (선택)
           <textarea name="memo" rows="3" maxlength="500" placeholder="현재 영어 학습 방법이나 궁금한 점을 적어 주세요."></textarea>
         </label>
         <div class="lp-hp" aria-hidden="true"><label>홈페이지 <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
         <label class="lp-consent">
           <input type="checkbox" name="consent" value="Y" required>
-          <span><b>[필수]</b> 상담을 위한 개인정보(성함, 연락처, 자녀 학년·학교) 수집·이용에 동의합니다. 수집한 정보는 상담 목적으로만 쓰며 <span id="retention">상담 종료 후 1년</span> 후 파기합니다.</span>
+          <span><b>[필수]</b> 상담을 위한 개인정보(성함, 연락처, 자녀 학년·학교, 입력한 경우 추천인 이름·연락처) 수집·이용에 동의합니다. 수집한 정보는 상담 목적으로만 쓰며 <span id="retention">상담 종료 후 1년</span> 후 파기합니다.</span>
         </label>
         <div id="form-error" class="lp-error" role="alert" hidden></div>
         <button type="submit" id="submit-btn" class="wc-btn wc-btn--red wc-btn--sticker lp-submit">상담 신청하기</button>

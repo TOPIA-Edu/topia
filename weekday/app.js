@@ -50,6 +50,8 @@
     return d;
   }
   phoneInput.addEventListener("input", function () { phoneInput.value = formatPhone(phoneInput.value); });
+  var refPhoneInput = form.elements.refPhone;
+  if (refPhoneInput) refPhoneInput.addEventListener("input", function () { refPhoneInput.value = formatPhone(refPhoneInput.value); });
 
   function showError(msg, field) {
     errorBox.textContent = msg;
@@ -66,6 +68,10 @@
     if (!name) return showError("학부모님 성함을 입력해 주세요.", f.parent), false;
     if (!/^(01[016789]\d{7,8}|0\d{8,10})$/.test(digits)) return showError("연락처를 정확히 입력해 주세요. (예: 010-1234-5678)", f.phone), false;
     if (!f.school.value) return showError("재학 중인 학교를 선택해 주세요.", f.school), false;
+    if (f.refName && (f.refName.value.trim() || f.refPhone.value.trim())) {
+      if (!f.refName.value.trim()) return showError("추천한 재원생 이름을 입력해 주세요.", f.refName), false;
+      if (!/^(01[016789]\d{7,8}|0\d{8,10})$/.test(f.refPhone.value.replace(/\D/g, ""))) return showError("재원생 학부모 연락처를 정확히 입력해 주세요. (예: 010-1234-5678)", f.refPhone), false;
+    }
     if (!f.consent.checked) return showError("개인정보 수집·이용에 동의해 주셔야 신청할 수 있습니다.", f.consent), false;
     clearError();
     return true;
@@ -89,6 +95,8 @@
       grade: grade ? grade.value : "",
       school: f.school.value,
       memo: f.memo.value.trim(),
+      refName: f.refName ? f.refName.value.trim() : "",
+      refPhone: f.refPhone && f.refPhone.value.trim() ? formatPhone(f.refPhone.value) : "",
       consent: f.consent.checked ? "Y" : "N",
       website: f.website.value,
       utm: utm,
