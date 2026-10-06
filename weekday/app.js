@@ -65,7 +65,7 @@
     var f = form.elements;
     var name = f.parent.value.trim();
     var digits = f.phone.value.replace(/\D/g, "");
-    if (!name) return showError("학부모님 성함을 입력해 주세요.", f.parent), false;
+    if (!name) return showError("학생 이름을 입력해 주세요.", f.parent), false;
     if (!/^(01[016789]\d{7,8}|0\d{8,10})$/.test(digits)) return showError("연락처를 정확히 입력해 주세요. (예: 010-1234-5678)", f.phone), false;
     if (!f.school.value) return showError("재학 중인 학교를 선택해 주세요.", f.school), false;
     if (f.refName && (f.refName.value.trim() || f.refPhone.value.trim())) {

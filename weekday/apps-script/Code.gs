@@ -10,13 +10,13 @@
  */
 
 // 배포가 제대로 반영됐는지 확인하는 표시. 웹 앱 주소를 브라우저로 열면 보입니다.
-var VERSION = "2026-10-06 추천인 칸";
+var VERSION = "2026-10-06 학생 이름";
 
 // 새 신청이 들어오면 알림 메일을 받을 주소. 비워 두면 메일을 보내지 않습니다.
 var NOTIFY_EMAIL = "";
 
 // 시트 1행 머리글 (이 순서로 시트를 정리합니다)
-var HEADERS = ["접수일시", "학부모 성함", "연락처", "자녀 학년(현재)", "재학 학교",
+var HEADERS = ["접수일시", "학생 이름", "연락처", "자녀 학년(현재)", "재학 학교",
   "추천 재원생 이름", "추천인 학부모 연락처", "궁금한 점",
   "개인정보 동의", "유입 경로(UTM)", "페이지 주소", "처리 상태", "담당자", "메모"];
 
@@ -36,7 +36,15 @@ function setupSheet() {
     return "머리글을 새로 만들었습니다.";
   }
   var head = headerRow_(sheet);
-  if (head.indexOf("추천 재원생 이름") >= 0) return "이미 정리되어 있습니다.";
+  var msg = [];
+  // B열 머리글 "학부모 성함" → "학생 이름"
+  var oldName = head.indexOf("학부모 성함");
+  if (oldName >= 0 && head.indexOf("학생 이름") < 0) {
+    sheet.getRange(1, oldName + 1).setValue("학생 이름");
+    head[oldName] = "학생 이름";
+    msg.push("'학부모 성함' 머리글을 '학생 이름'으로 바꿨습니다.");
+  }
+  if (head.indexOf("추천 재원생 이름") >= 0) return msg.concat("열 구성은 이미 정리되어 있습니다.").join(" ");
 
   var schoolCol = head.indexOf("재학 학교") + 1;          // 보통 5 (E열)
   if (schoolCol < 1) schoolCol = 5;
@@ -44,7 +52,7 @@ function setupSheet() {
   sheet.getRange(1, schoolCol + 1, 1, 2).setValues([["추천 재원생 이름", "추천인 학부모 연락처"]]);
   // 새 칸 머리글 모양을 "재학 학교" 머리글과 같게
   sheet.getRange(1, schoolCol).copyTo(sheet.getRange(1, schoolCol + 1, 1, 2), SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false);
-  return "재학 학교 뒤에 추천인 칸 2개를 추가했습니다.";
+  return msg.concat("재학 학교 뒤에 추천인 칸 2개를 추가했습니다.").join(" ");
 }
 
 function doPost(e) {
@@ -77,7 +85,8 @@ function doPost(e) {
     // 머리글 이름 → 저장할 값
     var record = {
       "접수일시": Utilities.formatDate(new Date(), "Asia/Seoul", "yyyy-MM-dd HH:mm:ss"),
-      "학부모 성함": parent,
+      "학생 이름": parent,
+      "학부모 성함": parent,   // 예전 머리글을 그대로 둔 시트도 저장되도록
       "연락처": phone,
       "자녀 학년(현재)": grade,
       "재학 학교": school,
@@ -106,7 +115,7 @@ function doPost(e) {
       MailApp.sendEmail(NOTIFY_EMAIL,
         "[Weekday Class] 새 상담 신청 - " + parent,
         "새 상담 신청이 접수되었습니다.\n\n" +
-        "학부모: " + parent + "\n연락처: " + phone + "\n학년: " + grade + "\n학교: " + school +
+        "학생: " + parent + "\n연락처: " + phone + "\n학년: " + grade + "\n학교: " + school +
         (refName ? "\n추천 재원생: " + refName + " (" + refPhone + ")" : "") +
         (memo ? "\n궁금한 점: " + memo : "") +
         "\n\n시트에서 확인하기: " + SpreadsheetApp.getActiveSpreadsheet().getUrl());
