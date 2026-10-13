@@ -15,17 +15,43 @@
   }
 
   /* ── 유입 경로(UTM) 기억 ──────────────────────────── */
+  // 1) 주소에 utm/fbclid가 있으면 그대로 쓰고, 같은 브라우저에 30일간 기억합니다.
+  // 2) 없으면 30일 안에 기억해 둔 유입 정보를 씁니다(visit=처음 들어온 날짜).
+  // 3) 그것도 없으면 직전 페이지 주소(ref=도메인)를 남깁니다. 직접 입력이면 ref=direct.
   var UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
+  var KEEP_DAYS = 30;
+  function today() {
+    var d = new Date(Date.now() + 9 * 3600 * 1000);   // 한국 시간 기준 날짜
+    return d.toISOString().slice(0, 10);
+  }
+  function referrerHost() {
+    try {
+      if (!document.referrer) return "direct";
+      var h = new URL(document.referrer).hostname.replace(/^www\./, "");
+      return h === window.location.hostname ? "" : h;
+    } catch (e) { return ""; }
+  }
   function readUtm() {
     var params = new URLSearchParams(window.location.search);
     var found = {};
     UTM_KEYS.forEach(function (k) { if (params.get(k)) found[k] = params.get(k); });
     if (params.get("fbclid")) found.fbclid = "Y";
+    var ref = referrerHost();
+    if (Object.keys(found).length) {
+      if (ref && ref !== "direct") found.ref = ref;
+      try { localStorage.setItem("wc_utm", JSON.stringify({ at: Date.now(), day: today(), v: found })); } catch (e) {}
+      return found;
+    }
     try {
-      if (Object.keys(found).length) sessionStorage.setItem("wc_utm", JSON.stringify(found));
-      else found = JSON.parse(sessionStorage.getItem("wc_utm") || "{}");
+      var saved = JSON.parse(localStorage.getItem("wc_utm") || "null");
+      if (saved && saved.v && Date.now() - saved.at < KEEP_DAYS * 864e5) {
+        var back = {};
+        Object.keys(saved.v).forEach(function (k) { back[k] = saved.v[k]; });
+        if (saved.day !== today()) back.visit = saved.day;
+        return back;
+      }
     } catch (e) { /* 저장소를 못 쓰는 브라우저 */ }
-    return found;
+    return ref ? { ref: ref } : {};
   }
   var utm = readUtm();
 
