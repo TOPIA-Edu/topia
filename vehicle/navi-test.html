@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>TOPIA 차량 · 카카오내비 실행 테스트</title>
+<style>
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:#f5f7fb;color:#1b2333}
+  header{background:#1f4fd8;color:#fff;padding:16px}header b{font-size:20px}header span{display:block;font-size:13px;opacity:.85;margin-top:2px}
+  .wrap{padding:14px}
+  .st{font-size:13px;background:#fff;border:1px solid #e3e7ef;border-radius:10px;padding:10px 12px;line-height:1.7}
+  .ok{color:#14a06b;font-weight:700}.ng{color:#e5484d;font-weight:700}
+  h3{font-size:14px;color:#6b7487;margin:18px 0 8px}
+  button{display:block;width:100%;height:56px;border:0;border-radius:14px;background:#1f4fd8;color:#fff;font-size:17px;font-weight:800;margin-bottom:8px}
+  button.alt{background:#14a06b}
+  #map{height:240px;border-radius:14px;background:#dde3ee}
+  #log{font-size:12px;color:#6b7487;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<header><b>카카오내비 실행 테스트</b><span>노선 데이터 없이 공개 정류장 3곳으로만 확인합니다</span></header>
+<div class="wrap">
+  <div class="st" id="status">확인 중…</div>
+
+  <h3>1) 한 정류장씩 안내</h3>
+  <div id="single"></div>
+
+  <h3>2) 경유지로 묶어서 안내 (경유 2곳 + 목적지)</h3>
+  <button class="alt" id="viaBtn">3곳 묶어서 카카오내비 안내</button>
+
+  <h3>3) 지도 표시 확인</h3>
+  <div id="map"></div>
+  <p id="log"></p>
+</div>
+
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" crossorigin="anonymous"></script>
+<script>
+const KAKAO_JS_KEY = "383ebf77dd47df6f86ccb85c795d9aca";
+const STOPS = [
+  { name: "마들역 8번출구", x: 127.057169, y: 37.666137 },
+  { name: "보람APT(GS마트앞)", x: 127.065600, y: 37.664466 },
+  { name: "상계역 벽산A(CU편의점앞)", x: 127.071763, y: 37.660479 }
+];
+const $ = s => document.querySelector(s);
+const st = [];
+const log = t => { $("#log").textContent += t + "\n"; };
+
+let sdk = false;
+try { Kakao.init(KAKAO_JS_KEY); sdk = Kakao.isInitialized(); } catch (e) { log("SDK 초기화 오류: " + e.message); }
+st.push(`카카오 SDK: ${sdk ? '<span class="ok">정상</span>' : '<span class="ng">실패</span>'}`);
+st.push(`접속 기기: ${/Android|iPhone|iPad/i.test(navigator.userAgent) ? "휴대폰" : '<span class="ng">PC (내비 실행은 휴대폰에서만 됩니다)</span>'}`);
+$("#status").innerHTML = st.join("<br>");
+
+STOPS.forEach((s, i) => {
+  const b = document.createElement("button");
+  b.textContent = `${i + 1}. ${s.name} 안내`;
+  b.onclick = () => start({ name: s.name, x: s.x, y: s.y, coordType: "wgs84" });
+  $("#single").appendChild(b);
+});
+$("#viaBtn").onclick = () => {
+  const [a, b, c] = STOPS;
+  start({ name: c.name, x: c.x, y: c.y, coordType: "wgs84",
+          viaPoints: [{ name: a.name, x: a.x, y: a.y }, { name: b.name, x: b.x, y: b.y }] });
+};
+function start(opt) {
+  try { const r = Kakao.Navi.start(opt); if (r && r.catch) r.catch(e => log("내비 실행 오류: " + JSON.stringify(e))); log("내비 실행 요청: " + opt.name); }
+  catch (e) { log("내비 실행 오류: " + e.message); }
+}
+
+const sc = document.createElement("script");
+sc.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_JS_KEY}&autoload=false`;
+sc.onload = () => kakao.maps.load(() => {
+  const map = new kakao.maps.Map($("#map"), { center: new kakao.maps.LatLng(37.6635, 127.0645), level: 5 });
+  STOPS.forEach((s, i) => new kakao.maps.CustomOverlay({ map, position: new kakao.maps.LatLng(s.y, s.x), yAnchor: .5,
+    content: `<div style="background:#1f4fd8;color:#fff;font-weight:800;font-size:12px;border-radius:12px;padding:3px 7px;border:2px solid #fff">${i + 1}</div>` }));
+  $("#status").innerHTML += '<br>카카오 지도: <span class="ok">정상</span>';
+});
+sc.onerror = () => { $("#status").innerHTML += '<br>카카오 지도: <span class="ng">불러오기 실패 (도메인 등록 확인)</span>'; };
+document.head.appendChild(sc);
+</script>
+</body>
+</html>
