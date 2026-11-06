@@ -81,7 +81,12 @@
   <p style="font-size:12px;color:#6b7487">CM 코스 화면을 하나씩 열어 읽기만 합니다. CM 데이터는 수정하지 않습니다. 노선이 바뀐 날 실행해 주세요.</p>
   <h3>구글 내 지도와 다시 비교</h3>
   <p style="font-size:13px;color:#6b7487">구글 내 지도를 고친 뒤 누르면, 지금 지도의 핀 위치로 차이를 다시 계산합니다. CM 등원 동기화 때도 자동으로 함께 비교합니다.</p>
+  <p style="font-size:13px">현재 비교 중인 지도: <a id="mapLink" target="_blank" rel="noopener">-</a></p>
   <p><button class="bm" id="gBtn" style="border:0;cursor:pointer">구글지도 다시 비교</button> <span id="gMsg" style="font-size:13px;color:#6b7487"></span></p>
+  <h3>새 구글 내 지도로 바꾸기</h3>
+  <p style="font-size:13px;color:#6b7487">새 지도의 주소를 붙여넣고 [적용]을 누르면 그 지도로 바꾸고 바로 비교합니다. 지도 공유는 '링크가 있는 모든 사용자 - 보기'여야 하고, 정류장 이름은 '3호 정류장명'처럼 호차 번호로 시작해야 합니다.</p>
+  <p style="display:flex;gap:8px;max-width:760px"><input id="mapUrl" placeholder="https://www.google.com/maps/d/edit?mid=…" style="flex:1;height:42px;border:1px solid #e3e7ef;border-radius:10px;padding:0 12px;font-size:14px"><button class="bm" id="mapBtn" style="border:0;cursor:pointer">적용</button></p>
+  <p id="mapMsg" style="font-size:13px;color:#6b7487"></p>
   <h4>최근 이력</h4><div id="logs" style="font-size:13px"></div>
 </div></section>
 
@@ -132,6 +137,8 @@ fetch(`${API_URL}?a=admin&k=${encodeURIComponent(k)}`).then(r=>r.json()).then(re
     tr.querySelector("button").onclick = e => navigator.clipboard.writeText(url).then(()=>e.target.textContent="복사됨");
     $("#linkRows").appendChild(tr);
   });
+  // 비교 중인 구글 지도
+  $("#mapLink").href = `https://www.google.com/maps/d/viewer?mid=${D.mapMid}`; $("#mapLink").textContent = D.mapMid;
   // 로그
   $("#logs").innerHTML = D.logs.map(l=>`<div style="padding:6px 0;border-bottom:1px solid #e3e7ef">${l["일시"]} · <b>${l["구분"]}</b> · ${l["내용"]}</div>`).join("");
   // 동기화 북마크
@@ -142,6 +149,14 @@ fetch(`${API_URL}?a=admin&k=${encodeURIComponent(k)}`).then(r=>r.json()).then(re
   loadMap();
 }).catch(e => { $("#err").textContent = "불러오기 실패: " + e; $("#err").classList.remove("hide"); });
 
+$("#mapBtn").onclick = () => {
+  const u = $("#mapUrl").value.trim(); if(!u) return;
+  $("#mapMsg").textContent = "새 지도를 확인하고 비교하는 중… (10~20초)";
+  fetch(`${API_URL}?a=admin&do=setmap&url=${encodeURIComponent(u)}&k=${encodeURIComponent(k)}`).then(r=>r.json()).then(res => {
+    $("#mapMsg").textContent = res.ok ? (res.data.logs[0]||{})["내용"] || "적용 완료" : res.error;
+    if(res.ok) setTimeout(()=>location.reload(), 3000);
+  }).catch(e => $("#mapMsg").textContent = "실패: " + e);
+};
 $("#gBtn").onclick = () => {
   $("#gMsg").textContent = "비교 중… (10초 정도 걸려요)";
   fetch(`${API_URL}?a=admin&do=google&k=${encodeURIComponent(k)}`).then(r=>r.json()).then(res => {
