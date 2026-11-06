@@ -307,7 +307,8 @@ function drawMap(){
   S.forEach((s,i)=>{ const p = new kakao.maps.LatLng(s.lat,s.lng); path.push(p); b.extend(p);
     marks.push(new kakao.maps.CustomOverlay({ map, position:p, yAnchor:.5, content:`<div class="mk ${i<idx?"d":i===idx?"c":""}">${i+1}</div>` })); });
   marks.push(new kakao.maps.Polyline({ map, path, strokeWeight:3, strokeColor:"#1f4fd8", strokeOpacity:.5, strokeStyle:"shortdash" }));
-  map.setBounds(b, 24,24,24,24);
+  map.relayout(); map.setBounds(b, 24,24,24,24);
+  setTimeout(() => { map.relayout(); map.setBounds(b, 24,24,24,24); }, 300);
 }
 function loadMap(){
   if(window.PREVIEW_DATA){ $("#map").classList.add("hide"); return; }

@@ -145,7 +145,10 @@ function loadMap(){
   sc.onload = () => kakao.maps.load(() => {
     map = new kakao.maps.Map($("#map"), {center:new kakao.maps.LatLng(37.64,127.07), level:7});
     map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
-    draw(true);
+    let fitted = false;
+    const fit = () => { const el = $("#map"); if(el.offsetWidth && el.offsetHeight){ map.relayout(); draw(!fitted); fitted = true; } };
+    new ResizeObserver(() => { if(!fitted) fit(); else map.relayout(); }).observe($("#map"));
+    setTimeout(fit, 300);
   });
   document.head.appendChild(sc);
 }
