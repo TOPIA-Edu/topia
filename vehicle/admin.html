@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>TOPIA 차량 노선 관리</title>
+<style>
+  :root{--p:#1f4fd8;--ink:#1b2333;--sub:#6b7487;--line:#e3e7ef;--bg:#f5f7fb;--warn:#e8890c;--bad:#e5484d;--ok:#14a06b}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:var(--ink);background:var(--bg);height:100vh;display:flex;flex-direction:column}
+  header{display:flex;align-items:center;gap:16px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--line)}
+  header b{font-size:17px} header span{font-size:13px;color:var(--sub)}
+  .tabs{margin-left:auto;display:flex;gap:4px}
+  .tabs button{border:0;background:none;padding:8px 12px;border-radius:8px;font-size:14px;font-weight:600;color:var(--sub);cursor:pointer}
+  .tabs button.on{background:#e8eefc;color:var(--p)}
+  main{flex:1;display:flex;min-height:0}
+  aside{width:340px;flex:none;background:#fff;border-right:1px solid var(--line);overflow:auto;padding:12px}
+  #map{flex:1}
+  h4{margin:14px 0 8px;font-size:13px;color:var(--sub)}
+  .cars{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .car{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px;cursor:pointer;user-select:none}
+  .car i{width:12px;height:12px;border-radius:3px;flex:none}
+  .car.off{opacity:.35}
+  .row{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:6px;font-size:13px;cursor:pointer}
+  .row:hover{border-color:var(--p)}
+  .row b{display:block;font-size:13px}
+  .badge{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:1px 6px;margin-right:4px;color:#fff}
+  .b-warn{background:var(--warn)} .b-bad{background:var(--bad)} .b-none{background:#9aa3b5} .b-ok{background:var(--ok)}
+  .row small{color:var(--sub)}
+  .legend{font-size:12px;color:var(--sub);line-height:1.7}
+  .legend span{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:#fff}
+  th,td{border-bottom:1px solid var(--line);padding:8px;text-align:left}
+  .panel{flex:1;overflow:auto;padding:20px}
+  .panel .box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;max-width:900px}
+  button.cp{border:1px solid var(--p);background:#fff;color:var(--p);border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer}
+  .bm{display:inline-block;background:var(--p);color:#fff;text-decoration:none;font-weight:700;padding:10px 16px;border-radius:10px}
+  .pin{font-size:11px;font-weight:800;color:#fff;border-radius:10px;padding:2px 6px;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.35);white-space:nowrap}
+  .gpin{width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid #333}
+  .tip{background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.15);white-space:nowrap}
+  .hide{display:none!important}
+  #err{padding:40px;color:var(--bad)}
+</style>
+</head>
+<body>
+<header>
+  <b>TOPIA 차량 노선 관리</b><span id="meta">불러오는 중…</span>
+  <div class="tabs"><button data-v="map" class="on">노선 지도</button><button data-v="links">기사님 링크</button><button data-v="sync">CM 동기화</button></div>
+</header>
+<div id="err" class="hide"></div>
+<main id="vMap">
+  <aside>
+    <h4>호차 (클릭해서 켜기/끄기)</h4>
+    <div class="cars" id="cars"></div>
+    <h4>확인이 필요한 정류장</h4>
+    <div id="issues"></div>
+    <h4>범례</h4>
+    <div class="legend">
+      <span style="background:#1f4fd8"></span>숫자 핀: 운행에 쓰는 위치 (CM 기준, 수동보정 시 보정값)<br>
+      <span style="background:#fff;border:2px solid #333"></span>흰 원: 구글 내 지도 위치 (비교용)<br>
+      빨간 선: 두 위치 사이 차이
+    </div>
+  </aside>
+  <div id="map"></div>
+</main>
+<section id="vLinks" class="panel hide"><div class="box">
+  <h3 style="margin-top:0">호차별 기사님 링크</h3>
+  <p style="font-size:13px;color:#6b7487">링크마다 해당 호차 노선만 보입니다. 기사님이 바뀌어도 같은 링크를 전달하면 되고, 링크를 막으려면 시트 '링크' 탭에서 사용을 N으로 바꾸거나 토큰을 새로 바꿔 주세요.</p>
+  <table><thead><tr><th>호차</th><th>운행지역</th><th>상태</th><th>링크</th><th></th></tr></thead><tbody id="linkRows"></tbody></table>
+</div></section>
+<section id="vSync" class="panel hide"><div class="box">
+  <h3 style="margin-top:0">CM → 노선 DB 동기화 버튼</h3>
+  <ol style="font-size:14px;line-height:1.8">
+    <li>아래 파란 버튼을 크롬 <b>북마크바로 끌어다 놓기</b> (한 번만)</li>
+    <li>CM &gt; 차량 &gt; <b>차량조회 관리</b>에서 <b>등원</b> 탭을 열고 북마크 버튼 클릭 → 안내에 따라 한 번 더 클릭</li>
+    <li>끝나면 <b>하원</b> 탭으로 바꾸고 같은 방법으로 한 번 더</li>
+    <li>결과는 시트 '이력' 탭에 남습니다. 정류장 추가·삭제·위치 변경이 함께 기록됩니다.</li>
+  </ol>
+  <p><a class="bm" id="bm">TOPIA 노선 동기화</a></p>
+  <p style="font-size:12px;color:#6b7487">CM 코스 화면을 하나씩 열어 읽기만 합니다. CM 데이터는 수정하지 않습니다. 노선이 바뀐 날 실행해 주세요.</p>
+  <h4>최근 이력</h4><div id="logs" style="font-size:13px"></div>
+</div></section>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbyBM7Q_GttPSPZfK6nDXtPWDqNc6ect2rx8jik2E8j66uuEJXqF2YQqlXJ72ojDUiqr1Q/exec";
+const KAKAO_JS_KEY = "719d78d4fe57fc239d2ec38aa07bdbbe";
+const SYNC_JS_URL = "cm-sync.js";   // cm-sync.js 원본 (버튼 생성용)
+const COLORS = ["#1f4fd8","#e5484d","#14a06b","#e8890c","#8e4ec6","#0091b3","#d6409f","#6b4f2a","#3e63dd","#c2410c","#0f766e","#7c3aed","#be123c"];
+const $ = s => document.querySelector(s);
+const k = new URLSearchParams(location.search).get("k") || "";
+let D, map, layers = {}, hidden = new Set();
+
+document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x===b));
+  $("#vMap").classList.toggle("hide", b.dataset.v!=="map");
+  $("#vLinks").classList.toggle("hide", b.dataset.v!=="links");
+  $("#vSync").classList.toggle("hide", b.dataset.v!=="sync");
+  if(b.dataset.v==="map" && map) map.relayout();
+});
+
+fetch(`${API_URL}?a=admin&k=${encodeURIComponent(k)}`).then(r=>r.json()).then(res => {
+  if(!res.ok){ $("#err").textContent = res.error; $("#err").classList.remove("hide"); $("#vMap").classList.add("hide"); return; }
+  D = res.data;
+  const cars = [...new Set(D.stops.map(s=>s.car))];
+  const issues = D.stops.filter(s => s.status !== "정상");
+  $("#meta").textContent = `${cars.length}대 · 정류장 ${D.stops.length}곳 · 확인 필요 ${issues.filter(s=>s.status!=="구글지도 없음").length}곳`;
+  cars.forEach((c,i) => {
+    const el = document.createElement("div"); el.className="car"; el.innerHTML = `<i style="background:${COLORS[i%COLORS.length]}"></i>${c} <small style="color:#6b7487">${(D.links.find(l=>l.car===c)||{}).area||""}</small>`;
+    el.onclick = () => { hidden.has(c)?hidden.delete(c):hidden.add(c); el.classList.toggle("off"); draw(); };
+    $("#cars").appendChild(el);
+  });
+  const order = {"수동보정":0,"확인필요":1,"구글지도 없음":2};
+  issues.sort((a,b)=>(order[a.status]??9)-(order[b.status]??9));
+  $("#issues").innerHTML = issues.length ? "" : '<small style="color:#6b7487">없음</small>';
+  issues.forEach(s => {
+    const cls = s.status==="확인필요"?"b-warn":s.status.startsWith("수동")?"b-bad":"b-none";
+    const el = document.createElement("div"); el.className="row";
+    el.innerHTML = `<b><span class="badge ${cls}">${s.status}</span>${s.car} ${s.seq}. ${s.n}</b><small>${s.diff!=null?`CM↔구글 ${s.diff}m · `:""}${s.memo||""}</small>`;
+    el.onclick = () => { if(map) { map.setLevel(3); map.panTo(new kakao.maps.LatLng(s.lat,s.lng)); } };
+    $("#issues").appendChild(el);
+  });
+  // 링크
+  const base = location.href.replace(/admin\.html.*$/,"");
+  D.links.forEach(l => {
+    const url = `${base}?t=${l.token}`;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td><b>${l.car}</b></td><td>${l.area}</td><td>${l.on?"사용":"중지"}</td><td style="font-size:12px;word-break:break-all">${url}</td><td><button class="cp">복사</button></td>`;
+    tr.querySelector("button").onclick = e => navigator.clipboard.writeText(url).then(()=>e.target.textContent="복사됨");
+    $("#linkRows").appendChild(tr);
+  });
+  // 로그
+  $("#logs").innerHTML = D.logs.map(l=>`<div style="padding:6px 0;border-bottom:1px solid #e3e7ef">${l["일시"]} · <b>${l["구분"]}</b> · ${l["내용"]}</div>`).join("");
+  // 동기화 북마크
+  fetch(SYNC_JS_URL).then(r=>r.text()).then(src => {
+    const code = src.replace(/\/\*[\s\S]*?\*\//,"").replace("__API"+"_URL__", API_URL).replace("__SYNC"+"_KEY__", D.syncKey);
+    $("#bm").href = "javascript:" + encodeURIComponent(code);
+  });
+  loadMap();
+}).catch(e => { $("#err").textContent = "불러오기 실패: " + e; $("#err").classList.remove("hide"); });
+
+function loadMap(){
+  const sc = document.createElement("script");
+  sc.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_JS_KEY}&autoload=false`;
+  sc.onload = () => kakao.maps.load(() => {
+    map = new kakao.maps.Map($("#map"), {center:new kakao.maps.LatLng(37.64,127.07), level:7});
+    map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
+    draw(true);
+  });
+  document.head.appendChild(sc);
+}
+let objs = [];
+function draw(fit){
+  if(!map) return;
+  objs.forEach(o=>o.setMap(null)); objs=[];
+  const cars = [...new Set(D.stops.map(s=>s.car))];
+  const b = new kakao.maps.LatLngBounds();
+  cars.forEach((c,ci) => {
+    if(hidden.has(c)) return;
+    const col = COLORS[ci%COLORS.length];
+    const S = D.stops.filter(s=>s.car===c).sort((a,b)=>a.seq-b.seq);
+    const path = S.map(s=>new kakao.maps.LatLng(s.lat,s.lng));
+    path.forEach(p=>b.extend(p));
+    objs.push(new kakao.maps.Polyline({map, path, strokeWeight:3, strokeColor:col, strokeOpacity:.75}));
+    S.forEach(s => {
+      const p = new kakao.maps.LatLng(s.lat,s.lng);
+      const pin = new kakao.maps.CustomOverlay({map, position:p, yAnchor:.5, content:`<div class="pin" style="background:${col}" title="${s.n}">${c.replace("호","")}-${s.seq}</div>`});
+      objs.push(pin);
+      if(s.gLat && s.gLng){
+        const g = new kakao.maps.LatLng(s.gLat,s.gLng);
+        objs.push(new kakao.maps.CustomOverlay({map, position:g, yAnchor:.5, content:'<div class="gpin"></div>'}));
+        if((s.diff||0) > 15) objs.push(new kakao.maps.Polyline({map, path:[p,g], strokeWeight:2, strokeColor:"#e5484d", strokeStyle:"shortdash"}));
+      }
+    });
+  });
+  if(fit && !b.isEmpty()) map.setBounds(b);
+}
+</script>
+</body>
+</html>
