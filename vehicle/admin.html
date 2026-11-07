@@ -82,7 +82,7 @@
 <div class="box" style="max-width:1100px">
   <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
     <h3 style="margin:0;flex:1">사용자 목록 <small id="uCount" style="color:#6b7487;font-weight:400"></small></h3>
-    <button class="cp" id="selCsv">선택 목록 내려받기 (CSV)</button><button class="cp" id="selTpl">일괄 문자 문구 복사</button>
+    <button class="cp" id="selRe">선택 사용자 재발급</button><button class="cp" id="selCsv">선택 목록 내려받기 (CSV)</button><button class="cp" id="selTpl">일괄 문자 문구 복사</button>
   </div>
   <table style="margin-top:10px"><thead><tr><th><input type="checkbox" id="selAll"></th><th>이름</th><th>역할</th><th>담당</th><th>연락처</th><th>상태</th><th>초대 코드 / 만료</th><th>마지막 접속</th><th>관리</th></tr></thead><tbody id="uRows"></tbody></table>
   <p style="font-size:12px;color:#6b7487">상태 · <b>대기</b> 초대 코드 발송 전·PIN 미설정 · <b>사용</b> PIN 설정 완료 · <b>잠김</b> PIN 5회 틀림(재발급 필요) · <b>차단</b> 접속 막음. 폰을 바꿨거나 PIN을 잊은 경우 [재발급]을 누르고 새 코드를 보내 주세요.</p>
@@ -284,6 +284,19 @@ $("#selCsv").onclick = () => {
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿"+body], { type:"text/csv;charset=utf-8" }));
   a.download = `차량부_초대명단_${new Date().toISOString().slice(0,10)}.csv`; a.click();
   if(L.some(u=>u.status!=="대기")) setTimeout(()=>alert("선택한 사람 중 이미 PIN을 설정한 분이 있어요. 그분의 초대 코드는 쓸 수 없으니 필요하면 [재발급] 후 다시 내려받아 주세요."),300);
+};
+$("#selRe").onclick = async e => {
+  const P = picked(); if(!P.length) return;
+  const L = P.filter(u => u.status!=="차단"), skip = P.length - L.length;
+  if(!L.length) return alert("선택한 사람이 모두 차단 상태라 재발급하지 않았어요.");
+  if(!confirm(`선택한 ${L.length}명의 초대 코드를 새로 만들까요?\n\n· 기존 PIN과 접속이 모두 해제되고, 새 코드로 다시 등록해야 합니다.${skip?`\n· 차단된 ${skip}명은 제외합니다.`:""}\n· 새 코드는 48시간 동안 쓸 수 있어요.`)) return;
+  const btn = e.target; btn.disabled = true; let ok = 0, fail = [];
+  for(const [i,u] of L.entries()){
+    btn.textContent = `재발급 중… ${i+1}/${L.length}`;
+    try { await userOp({ op:"reissue", id:u.id }); ok++; } catch(er){ fail.push(`${u.name}: ${er.message}`); }
+  }
+  btn.disabled = false; btn.textContent = "선택 사용자 재발급";
+  alert(`${ok}명 재발급 완료${fail.length?`\n실패 ${fail.length}명\n`+fail.join("\n"):""}\n\n이어서 [선택 목록 내려받기]로 새 코드 명단을 받아 문자를 보내 주세요.`);
 };
 $("#selTpl").onclick = e => copy(U ? U.template : "", e.target, "문구 복사됨");
 $("#tplSave").onclick = () => { $("#tplMsg").textContent = "저장 중…"; userOp({ op:"template", template:$("#tpl").value }).then(()=>$("#tplMsg").textContent="저장했습니다.").catch(er=>$("#tplMsg").textContent=er.message); };
