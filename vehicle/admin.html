@@ -40,13 +40,17 @@
   .gpin{width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid #333}
   .tip{background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.15);white-space:nowrap}
   .hide{display:none!important}
+  .form{display:flex;gap:8px;flex-wrap:wrap}.form input,.form select{height:40px;border:1px solid #e3e7ef;border-radius:10px;padding:0 10px;font-size:14px;background:#fff}
+  .form #uName{width:110px}.form #uCars{width:200px}.form #uPhone{width:140px}.form #uMemo{flex:1;min-width:120px}
+  .st{font-size:12px;font-weight:700;border-radius:6px;padding:2px 7px}.st-대기{background:#fff3e0;color:#b45309}.st-사용{background:#e7f7f0;color:#0e7a54}.st-잠김,.st-차단{background:#fde8e8;color:#c62828}
+  td .cp{margin:1px}
   #err{padding:40px;color:var(--bad)}
 </style>
 </head>
 <body>
 <header>
   <b>TOPIA 차량 노선 관리</b><span id="meta">불러오는 중…</span>
-  <div class="tabs"><button data-v="map" class="on">노선 지도</button><button data-v="links">기사님 링크</button><button data-v="sync">CM 동기화</button></div>
+  <div class="tabs"><button data-v="map" class="on">노선 지도</button><button data-v="users">사용자 관리</button><button data-v="trips">운행 기록</button><button data-v="sync">CM 동기화</button></div>
 </header>
 <div id="err" class="hide"></div>
 <main id="vMap">
@@ -64,10 +68,36 @@
   </aside>
   <div id="map"></div>
 </main>
-<section id="vLinks" class="panel hide"><div class="box">
-  <h3 style="margin-top:0">호차별 기사님 링크</h3>
-  <p style="font-size:13px;color:#6b7487">링크마다 해당 호차 노선만 보입니다. 기사님이 바뀌어도 같은 링크를 전달하면 되고, 링크를 막으려면 시트 '링크' 탭에서 사용을 N으로 바꾸거나 토큰을 새로 바꿔 주세요.</p>
-  <table><thead><tr><th>호차</th><th>운행지역</th><th>상태</th><th>링크</th><th></th></tr></thead><tbody id="linkRows"></tbody></table>
+<section id="vUsers" class="panel hide">
+<div class="box" style="max-width:1100px">
+  <h3 style="margin-top:0">사용자 등록</h3>
+  <p style="font-size:13px;color:#6b7487">등록하면 48시간 동안 쓸 수 있는 초대 코드가 만들어집니다. 받은 분이 코드를 입력하고 위치 기록에 동의한 뒤 개인 PIN 6자리를 정하면, 이후에는 그 폰에서 PIN만으로 접속합니다.</p>
+  <div class="form">
+    <input id="uName" placeholder="이름"><select id="uRole"><option>기사</option><option>보조교사</option></select>
+    <input id="uCars" placeholder="담당 호차 (예: 3호 또는 3호,5호)"><input id="uPhone" placeholder="연락처 (숫자만)"><input id="uMemo" placeholder="메모">
+    <button class="bm" id="uAdd" style="border:0;cursor:pointer">등록</button>
+  </div>
+  <p id="uMsg" style="font-size:13px;color:#6b7487;margin:8px 0 0"></p>
+</div>
+<div class="box" style="max-width:1100px">
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <h3 style="margin:0;flex:1">사용자 목록 <small id="uCount" style="color:#6b7487;font-weight:400"></small></h3>
+    <button class="cp" id="selCsv">선택 목록 내려받기 (CSV)</button><button class="cp" id="selTpl">일괄 문자 문구 복사</button>
+  </div>
+  <table style="margin-top:10px"><thead><tr><th><input type="checkbox" id="selAll"></th><th>이름</th><th>역할</th><th>담당</th><th>연락처</th><th>상태</th><th>초대 코드 / 만료</th><th>마지막 접속</th><th>관리</th></tr></thead><tbody id="uRows"></tbody></table>
+  <p style="font-size:12px;color:#6b7487">상태 · <b>대기</b> 초대 코드 발송 전·PIN 미설정 · <b>사용</b> PIN 설정 완료 · <b>잠김</b> PIN 5회 틀림(재발급 필요) · <b>차단</b> 접속 막음. 폰을 바꿨거나 PIN을 잊은 경우 [재발급]을 누르고 새 코드를 보내 주세요.</p>
+</div>
+<div class="box" style="max-width:1100px">
+  <h3 style="margin-top:0">초대 문자 문구</h3>
+  <p style="font-size:13px;color:#6b7487">쓸 수 있는 변수: <code>{이름}</code> <code>{역할}</code> <code>{호차}</code> <code>{초대코드}</code> <code>{만료}</code> <code>{접속주소}</code>. 개별 [문자 복사]는 변수를 채워서 복사하고, [일괄 문자 문구 복사]는 변수 그대로 복사합니다(내려받은 CSV의 열 이름과 같아서 단체 문자 서비스에 바로 쓸 수 있어요).</p>
+  <textarea id="tpl" rows="6" style="width:100%;border:1px solid #e3e7ef;border-radius:10px;padding:10px;font:inherit;font-size:14px"></textarea>
+  <p><button class="cp" id="tplSave">문구 저장</button> <span id="tplMsg" style="font-size:13px;color:#6b7487"></span></p>
+</div>
+</section>
+<section id="vTrips" class="panel hide"><div class="box" style="max-width:1200px">
+  <h3 style="margin-top:0">최근 운행 기록 <small style="color:#6b7487;font-weight:400">최근 50건 · 6개월 지나면 자동 삭제</small></h3>
+  <p style="font-size:13px;color:#6b7487">[도착]·[학원 도착]·중간 시작을 누른 시각과 위치입니다. <b>정류장 거리</b>가 크면 정류장 위치가 실제와 다르거나, 도착 전에 누른 경우예요. 전체 기록은 시트 '운행기록' 탭에 있습니다.</p>
+  <div style="overflow:auto"><table><thead><tr><th>일시</th><th>이름</th><th>호차</th><th>구분</th><th>운행</th><th>모드</th><th>이벤트</th><th>정류장</th><th>GPS 정확도</th><th>정류장 거리</th></tr></thead><tbody id="tRows"></tbody></table></div>
 </div></section>
 <section id="vSync" class="panel hide"><div class="box">
   <h3 style="margin-top:0">CM → 노선 DB 동기화 버튼</h3>
@@ -102,7 +132,9 @@ let D, map, layers = {}, hidden = new Set();
 document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
   document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x===b));
   $("#vMap").classList.toggle("hide", b.dataset.v!=="map");
-  $("#vLinks").classList.toggle("hide", b.dataset.v!=="links");
+  $("#vUsers").classList.toggle("hide", b.dataset.v!=="users");
+  $("#vTrips").classList.toggle("hide", b.dataset.v!=="trips");
+  if((b.dataset.v==="users"||b.dataset.v==="trips") && !U) userOp({ op:"list" });
   $("#vSync").classList.toggle("hide", b.dataset.v!=="sync");
   if(b.dataset.v==="map" && map) map.relayout();
 });
@@ -127,15 +159,6 @@ fetch(`${API_URL}?a=admin&k=${encodeURIComponent(k)}`).then(r=>r.json()).then(re
     el.innerHTML = `<b><span class="badge ${cls}">${s.status}</span>${s.car} ${s.seq}. ${s.n}</b><small>${s.diff!=null?`CM↔구글 ${s.diff}m · `:""}${s.memo||""}</small>`;
     el.onclick = () => { if(map) { map.setLevel(3); map.panTo(new kakao.maps.LatLng(s.lat,s.lng)); } };
     $("#issues").appendChild(el);
-  });
-  // 링크
-  const base = location.href.replace(/admin\.html.*$/,"");
-  D.links.forEach(l => {
-    const url = `${base}?t=${l.token}`;
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td><b>${l.car}</b></td><td>${l.area}</td><td>${l.on?"사용":"중지"}</td><td style="font-size:12px;word-break:break-all">${url}</td><td><button class="cp">복사</button></td>`;
-    tr.querySelector("button").onclick = e => navigator.clipboard.writeText(url).then(()=>e.target.textContent="복사됨");
-    $("#linkRows").appendChild(tr);
   });
   // 비교 중인 구글 지도
   $("#mapLink").href = `https://www.google.com/maps/d/viewer?mid=${D.mapMid}`; $("#mapLink").textContent = D.mapMid;
@@ -203,6 +226,67 @@ function draw(fit){
   });
   if(fit && !b.isEmpty()) map.setBounds(b);
 }
+
+/* ---------- 사용자 관리 ---------- */
+let U = null; const sel = new Set();
+const esc = v => String(v??"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+function userOp(body){
+  return fetch(API_URL, { method:"POST", headers:{ "Content-Type":"text/plain;charset=utf-8" }, body: JSON.stringify({ action:"admin", key:k, ...body }) })
+    .then(r=>r.json()).then(res => { if(!res.ok) throw new Error(res.error); U = res.data; renderUsers(); return res; });
+}
+function vars(u){ return { "이름":u.name, "역할":u.role, "호차":u.cars||"-", "초대코드":u.code, "만료":u.expire, "접속주소":U.appUrl, "연락처":u.phone }; }
+function fill(t, u){ const v = vars(u); return t.replace(/\{(이름|역할|호차|초대코드|만료|접속주소)\}/g, (_,x)=>v[x]??""); }
+function copy(t, btn, ok){ navigator.clipboard.writeText(t).then(()=>{ if(btn){ const o=btn.textContent; btn.textContent=ok||"복사됨"; setTimeout(()=>btn.textContent=o,1500); } }); }
+function renderUsers(){
+  if(!U.setup){ $("#uRows").innerHTML = '<tr><td colspan="9" style="color:#e5484d">사용자 기능이 아직 설치되지 않았습니다. Apps Script 편집기에서 setupV2를 한 번 실행해 주세요.</td></tr>'; return; }
+  if(document.activeElement !== $("#tpl")) $("#tpl").value = U.template;
+  $("#uCount").textContent = `${U.users.length}명`;
+  const tb = $("#uRows"); tb.innerHTML = U.users.length ? "" : '<tr><td colspan="9" style="color:#6b7487">등록된 사용자가 없습니다.</td></tr>';
+  U.users.forEach(u => {
+    const tr = document.createElement("tr"), wait = u.status==="대기";
+    tr.innerHTML = `<td><input type="checkbox" ${sel.has(u.id)?"checked":""}></td><td><b>${esc(u.name)}</b>${u.memo?`<br><small style="color:#6b7487">${esc(u.memo)}</small>`:""}</td><td>${esc(u.role)}</td><td>${esc(u.cars)}</td><td>${esc(u.phone)}</td>
+      <td><span class="st st-${esc(u.status)}">${esc(u.status)}</span>${+u.fail?` <small style="color:#c62828">틀림 ${esc(u.fail)}</small>`:""}</td>
+      <td>${wait?`<b style="font-family:monospace;letter-spacing:.05em">${esc(u.code)}</b><br><small style="color:#6b7487">${esc(u.expire)}까지</small>`:`<small style="color:#6b7487">${u.consent?"동의 "+esc(u.consent):""}</small>`}</td>
+      <td><small>${esc(u.last)}</small></td>
+      <td style="white-space:nowrap">${wait?'<button class="cp" data-a="sms">문자 복사</button>':""}<button class="cp" data-a="edit">담당 변경</button><button class="cp" data-a="reissue">재발급</button>${u.status==="차단"?'<button class="cp" data-a="unblock">차단 해제</button>':'<button class="cp" data-a="block" style="color:#c62828;border-color:#c62828">차단</button>'}</td>`;
+    tr.querySelector("input").onchange = e => { e.target.checked ? sel.add(u.id) : sel.delete(u.id); };
+    tr.querySelectorAll("button").forEach(btn => btn.onclick = () => {
+      const a = btn.dataset.a;
+      if(a==="sms") return copy(fill(U.template, u), btn);
+      if(a==="edit"){ const c = prompt(`${u.name}님 담당 호차 (예: 3호,5호)`, u.cars); if(c==null) return; return userOp({ op:"edit", id:u.id, cars:c.trim() }).catch(e=>alert(e.message)); }
+      const msg = { reissue:`${u.name}님의 초대 코드를 새로 만들까요?\n기존 PIN과 접속이 해제되고, 새 코드로 다시 등록해야 합니다.`, block:`${u.name}님의 접속을 막을까요?`, unblock:`${u.name}님의 차단을 해제할까요?` }[a];
+      if(!confirm(msg)) return;
+      userOp({ op:a, id:u.id }).then(()=>{ if(a==="reissue"){ const nu = U.users.find(x=>x.id===u.id); if(nu && confirm("새 초대 문자를 복사할까요?")) copy(fill(U.template, nu)); } }).catch(e=>alert(e.message));
+    });
+    tb.appendChild(tr);
+  });
+  $("#tRows").innerHTML = (U.trips||[]).length ? U.trips.map(r => `<tr><td style="white-space:nowrap">${esc(r[0])}</td><td>${esc(r[2])}</td><td>${esc(r[4])}</td><td>${esc(r[5])}</td><td>${esc(r[6])}</td><td>${esc(r[7])}</td><td>${esc(r[8])}</td><td>${r[9]?esc(r[9])+". ":""}${esc(r[10])}</td><td>${r[13]?esc(r[13])+"m":"-"}</td><td style="${+r[14]>200?"color:#c62828;font-weight:700":""}">${r[14]!==""?esc(r[14])+"m":(r[11]?"":"GPS 없음")}</td></tr>`).join("") : '<tr><td colspan="10" style="color:#6b7487">아직 기록이 없습니다.</td></tr>';
+}
+$("#selAll").onchange = e => { (U?U.users:[]).forEach(u => e.target.checked ? sel.add(u.id) : sel.delete(u.id)); renderUsers(); };
+$("#uAdd").onclick = () => {
+  const body = { op:"add", name:$("#uName").value.trim(), role:$("#uRole").value, cars:$("#uCars").value.replace(/\s/g,""), phone:$("#uPhone").value.replace(/\D/g,""), memo:$("#uMemo").value.trim() };
+  if(!body.name) return $("#uMsg").textContent = "이름을 입력해 주세요.";
+  if(body.cars && !/^(\d+호)(,\d+호)*$/.test(body.cars)) return $("#uMsg").textContent = "담당 호차는 3호 또는 3호,5호처럼 적어 주세요.";
+  $("#uAdd").disabled = true; $("#uMsg").textContent = "등록 중…";
+  userOp(body).then(() => {
+    const nu = U.users.filter(u => u.name===body.name).pop();
+    $("#uMsg").innerHTML = `${esc(body.name)}님 등록 완료 · 초대 코드 <b>${esc(nu&&nu.code)}</b> <button class="cp" id="newSms">문자 복사</button>`;
+    $("#newSms").onclick = e => copy(fill(U.template, nu), e.target);
+    ["#uName","#uCars","#uPhone","#uMemo"].forEach(x=>$(x).value="");
+  }).catch(e => $("#uMsg").textContent = e.message).finally(() => $("#uAdd").disabled = false);
+};
+function picked(){ const L = (U?U.users:[]).filter(u => sel.has(u.id)); if(!L.length) alert("목록에서 사용자를 먼저 선택해 주세요."); return L; }
+$("#selCsv").onclick = () => {
+  const L = picked(); if(!L.length) return;
+  const cols = ["이름","역할","호차","연락처","초대코드","만료","접속주소"];
+  const q = v => `"${String(v??"").replace(/"/g,'""')}"`;
+  const body = [cols.map(q).join(",")].concat(L.map(u => { const v = vars(u); return cols.map(c => c==="연락처" ? q(String(v[c]||"").replace(/^(\d{3})(\d{3,4})(\d{4})$/,"$1-$2-$3")) : q(v[c])).join(","); })).join("\r\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿"+body], { type:"text/csv;charset=utf-8" }));
+  a.download = `차량부_초대명단_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+  if(L.some(u=>u.status!=="대기")) setTimeout(()=>alert("선택한 사람 중 이미 PIN을 설정한 분이 있어요. 그분의 초대 코드는 쓸 수 없으니 필요하면 [재발급] 후 다시 내려받아 주세요."),300);
+};
+$("#selTpl").onclick = e => copy(U ? U.template : "", e.target, "문구 복사됨");
+$("#tplSave").onclick = () => { $("#tplMsg").textContent = "저장 중…"; userOp({ op:"template", template:$("#tpl").value }).then(()=>$("#tplMsg").textContent="저장했습니다.").catch(er=>$("#tplMsg").textContent=er.message); };
 </script>
 </body>
 </html>
